@@ -1,6 +1,6 @@
 import { Text } from "@react-navigation/elements";
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react"; // 👈 Tambah useState
+import React, { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackNavigationProp } from '../types/NavigationTypes';
@@ -81,7 +81,7 @@ const LoginScreen = () => {
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.footerText}>ASADE</Text>
+                <Text style={styles.footerText}>PT Tech Innovation Indonesia</Text>
                 <Text style={styles.footerText}>&copy; {new Date().getFullYear()}</Text>
             </View>
         </SafeAreaView>
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
     },
     header: {
-        flex: 1.2, // 👈 Naikkan rasio flex agar lebih banyak ruang di header
+        flex: 1.2,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f8fafc',

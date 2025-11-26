@@ -6,15 +6,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const employees = [
     {
         id: '1', name: 'Anna', status: 'Active',
-        biodata: { age: 25, email: 'anna@email.com', phone: '0812-1234-5678', address: 'Jl. Sudirman No. 10', position: 'Software Engineer' }
+        biodata: { age: 25, email: 'anna@email.com', phone: '0812-1234-5678', address: 'Jl. Sudirman No. 10', position: 'Software Engineer', contractEndDate: '2026-07-20' }
     },
     {
         id: '2', name: 'Budi', status: 'Inactive',
-        biodata: { age: 30, email: 'budi@email.com', phone: '0857-9876-5432', address: 'Jl. Diponegoro No. 7', position: 'HR Manager' }
+        biodata: { age: 30, email: 'budi@email.com', phone: '0857-9876-5432', address: 'Jl. Diponegoro No. 7', position: 'HR Manager', contractEndDate: '2025-02-20' }
     },
     {
         id: '3', name: 'Carla', status: 'Active',
-        biodata: { age: 29, email: 'carla@email.com', phone: '0821-2222-3333', address: 'Jl. Gatot Subroto No. 5', position: 'Marketing Lead' }
+        biodata: { age: 29, email: 'carla@email.com', phone: '0821-2222-3333', address: 'Jl. Gatot Subroto No. 5', position: 'Marketing Lead', contractEndDate: '2026-07-20' }
     },
 ];
 
@@ -60,6 +60,7 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
                     <Text style={styles.dropdownText}>Email: {item.biodata.email}</Text>
                     <Text style={styles.dropdownText}>Telepon: {item.biodata.phone}</Text>
                     <Text style={styles.dropdownText}>Alamat: {item.biodata.address}</Text>
+                    <Text style={styles.dropdownText}>Contract End Date: {item.biodata.contractEndDate}</Text>
                 </View>
             )}
         </View>

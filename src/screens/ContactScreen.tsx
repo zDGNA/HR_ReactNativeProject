@@ -19,10 +19,6 @@ type ContactItemProps = {
 const ContactItem: React.FC<ContactItemProps> = ({ iconName, title, value }) => (
     <View style={contactStyles.item}>
         {/* Placeholder untuk Ikon */}
-        <View style={contactStyles.iconPlaceholder}>
-            {/* <Ionicons name={iconName} size={24} color="#1d04d9ff" /> */}
-            <Text style={{ fontSize: 20 }}>📞</Text>
-        </View>
         <View style={contactStyles.info}>
             <Text style={contactStyles.title}>{title}</Text>
             <Text style={contactStyles.value}>{value}</Text>
@@ -42,14 +38,24 @@ const ContactScreen: React.FC<ContactScreenProps> = ({ navigation, route }) => {
                 <Card style={styles.contactCard}>
                     <CardContent style={styles.cardContentStyle}>
                         <ContactItem
-                            title="Email"
-                            value="contact@perusahaan.com"
+                            title="Cabang Denpasar"
+                            value="techinnovationindonesia@gmail.com"
                             iconName="mail-outline"
+                        />
+                        <ContactItem
+                            title="Front Office"
+                            value="(+62) 987 654 321"
+                            iconName="call-outline"
                         />
                         <View style={contactStyles.divider} />
                         <ContactItem
-                            title="Telepon"
+                            title="Company Phone"
                             value="(+62) 123 456 789"
+                            iconName="call-outline"
+                        />
+                        <ContactItem
+                            title="IT Support"
+                            value="(+62) 000 111 222"
                             iconName="call-outline"
                         />
                         <View style={contactStyles.divider} />

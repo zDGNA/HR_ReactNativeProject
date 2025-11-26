@@ -3,20 +3,21 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MainTabParamList } from './types/NavigationTypes';
+import { UserProvider } from './context/UserContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import HomeScreen from "./screens/HomeScreen";
 import ContactScreen from "./screens/ContactScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import DepartmentScreen from "./screens/DepartementScreen";
+import DivisionScreen from "./screens/DivisionScreen";
 import EmployeeScreen from "./screens/EmployeeScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type HomeStackParamList = {
     Home: undefined;
-    Departemen: undefined;
+    Division: undefined;
     Employee: { id?: string } | undefined;
 };
 
@@ -28,7 +29,6 @@ type RootStackParamList = {
 const HomeStackNav = createNativeStackNavigator<HomeStackParamList>();
 const RootStackNav = createNativeStackNavigator<RootStackParamList>();
 
-// --- Home Stack (Home → Department → Employee)
 const HomeStack = () => {
     return (
         <HomeStackNav.Navigator
@@ -38,8 +38,8 @@ const HomeStack = () => {
         >
             <HomeStackNav.Screen name="Home" component={HomeScreen as unknown as React.ComponentType<any>} />
             <HomeStackNav.Screen
-                name="Departemen"
-                component={DepartmentScreen as unknown as React.ComponentType<any>}
+                name="Division"
+                component={DivisionScreen as unknown as React.ComponentType<any>}
             />
             <HomeStackNav.Screen
                 name="Employee"
@@ -49,8 +49,6 @@ const HomeStack = () => {
     );
 };
 
-
-// --- Bagian Tab (Main screen setelah login)
 const MainTab = () => {
     return (
         <Tab.Navigator
@@ -90,8 +88,6 @@ const MainTab = () => {
     );
 };
 
-
-// --- Stack utama (Login → MainTab)
 const RootStack = () => {
     return (
         <RootStackNav.Navigator screenOptions={{ headerShown: false }}>
@@ -101,13 +97,13 @@ const RootStack = () => {
     );
 };
 
-
-// --- Entry point utama aplikasi
 const App = () => {
     return (
-        <NavigationContainer>
-            <RootStack />
-        </NavigationContainer>
+        <UserProvider>
+            <NavigationContainer>
+                <RootStack />
+            </NavigationContainer>
+        </UserProvider>
     );
 };
 
