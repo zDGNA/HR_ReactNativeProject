@@ -91,7 +91,7 @@ const MainTab = () => {
 const RootStack = () => {
     return (
         <RootStackNav.Navigator screenOptions={{ headerShown: false }}>
-            <RootStackNav.Screen name="Login" component={LoginScreen as unknown as React.ComponentType<any>} />
+            <RootStackNav.Screen name="LoginScreen" component={LoginScreen as unknown as React.ComponentType<any>} />
             <RootStackNav.Screen name="Main" component={MainTab as unknown as React.ComponentType<any>} />
         </RootStackNav.Navigator>
     );

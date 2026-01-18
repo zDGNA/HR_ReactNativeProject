@@ -18,8 +18,8 @@ const employees = [
     },
 ];
 
-// Tambahkan props navigation jika EmployeeScreen dipakai dalam Stack Navigator!
 type EmployeeScreenProps = { navigation: { goBack: () => void } };
+
 const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
     const [openId, setOpenId] = useState<string | null>(null);
 
@@ -31,7 +31,7 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
         <View style={styles.itemContainer}>
             <View style={styles.labelRow}>
                 <Text style={styles.employeeName}>{item.name}</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={styles.actionContainer}>
                     <View
                         style={[
                             styles.statusBadge,
@@ -44,13 +44,13 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
                         <Ionicons
                             name="ellipsis-vertical-outline"
                             size={28}
-                            color="#000000ff"
+                            color="#000000"
                             style={styles.iconMark}
                         />
                     </TouchableOpacity>
                 </View>
             </View>
-            {/* Dropdown biodata */}
+
             {openId === item.id && (
                 <View style={styles.dropdown}>
                     <Text style={styles.dropdownTitle}>Biodata</Text>
@@ -72,9 +72,10 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={27} color="#1d04d9ff" />
                 </TouchableOpacity>
-                <Text style={styles.header}>Employee List</Text>
-                <View style={{ width: 30 }} /> {/* Spacer */}
+                <Text style={styles.headerTitle}>Employee List</Text>
+                <View style={styles.headerSpacer} />
             </View>
+
             <FlatList
                 data={employees}
                 keyExtractor={item => item.id}
@@ -93,21 +94,22 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 16,
-        paddingTop: 30,
+        paddingTop: 10,
         paddingBottom: 18,
-        backgroundColor: "#f1f5f9",
         justifyContent: "space-between",
     },
-    header: { fontSize: 22, fontWeight: "bold", color: "#1d04d9ff", letterSpacing: 0.5 },
+    headerTitle: { fontSize: 22, fontWeight: "bold", color: "#1d04d9ff", letterSpacing: 0.5 },
+    headerSpacer: { width: 30 },
     listContent: { paddingHorizontal: 16, paddingBottom: 32 },
-    itemContainer: { backgroundColor: "#fff", borderRadius: 16, paddingVertical: 22, paddingHorizontal: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 3 },
+    itemContainer: { backgroundColor: "#fff", borderRadius: 16, paddingVertical: 20, paddingHorizontal: 20, elevation: 3 },
     labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    employeeName: { fontSize: 18, fontWeight: "600", color: "#22223b", letterSpacing: 0.2 },
-    statusBadge: { borderRadius: 100, paddingVertical: 5, paddingHorizontal: 18, minWidth: 80, alignItems: "center" },
-    statusText: { color: "#fff", fontWeight: "bold", fontSize: 15, letterSpacing: 0.1 },
+    actionContainer: { flexDirection: "row", alignItems: "center" },
+    employeeName: { fontSize: 18, fontWeight: "600", color: "#22223b" },
+    statusBadge: { borderRadius: 100, paddingVertical: 5, paddingHorizontal: 15, minWidth: 80, alignItems: "center" },
+    statusText: { color: "#fff", fontWeight: "bold", fontSize: 14 },
     iconMark: { marginLeft: 8 },
     separator: { height: 14 },
-    dropdown: { backgroundColor: "#e3eafe", marginTop: 12, borderRadius: 12, padding: 18, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
+    dropdown: { backgroundColor: "#e3eafe", marginTop: 12, borderRadius: 12, padding: 18 },
     dropdownTitle: { fontWeight: "bold", fontSize: 15, color: "#1d04d9ff", marginBottom: 8 },
     dropdownText: { fontSize: 14, color: "#343a40", marginBottom: 6 },
 });
