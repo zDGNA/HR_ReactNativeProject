@@ -22,7 +22,7 @@ type HomeStackParamList = {
 };
 
 type RootStackParamList = {
-    Login: undefined;
+    LoginScreen: undefined;
     Main: undefined;
 };
 
@@ -36,14 +36,14 @@ const HomeStack = () => {
                 headerShown: false,
             }}
         >
-            <HomeStackNav.Screen name="Home" component={HomeScreen as unknown as React.ComponentType<any>} />
+            <HomeStackNav.Screen name="Home" component={HomeScreen as any} />
             <HomeStackNav.Screen
                 name="Division"
-                component={DivisionScreen as unknown as React.ComponentType<any>}
+                component={DivisionScreen as any}
             />
             <HomeStackNav.Screen
                 name="Employee"
-                component={EmployeeScreen as unknown as React.ComponentType<any>}
+                component={EmployeeScreen as any}
             />
         </HomeStackNav.Navigator>
     );
@@ -59,7 +59,7 @@ const MainTab = () => {
         >
             <Tab.Screen
                 name="Home"
-                component={HomeStack as unknown as React.ComponentType<any>}
+                component={HomeStack as any}
                 options={{
                     tabBarIcon: ({ color }) => (
                         <Ionicons name="home-outline" size={24} color={color} />
@@ -68,7 +68,7 @@ const MainTab = () => {
             />
             <Tab.Screen
                 name="Contact"
-                component={ContactScreen as unknown as React.ComponentType<any>}
+                component={ContactScreen as any}
                 options={{
                     tabBarIcon: ({ color }) => (
                         <Ionicons name="call-outline" size={24} color={color} />
@@ -76,8 +76,8 @@ const MainTab = () => {
                 }}
             />
             <Tab.Screen
-                name={"Profile" as keyof MainTabParamList}
-                component={ProfileScreen as unknown as React.ComponentType<any>}
+                name="Profile"
+                component={ProfileScreen as any}
                 options={{
                     tabBarIcon: ({ color }) => (
                         <Ionicons name="people-outline" size={24} color={color} />
@@ -91,8 +91,14 @@ const MainTab = () => {
 const RootStack = () => {
     return (
         <RootStackNav.Navigator screenOptions={{ headerShown: false }}>
-            <RootStackNav.Screen name="LoginScreen" component={LoginScreen as unknown as React.ComponentType<any>} />
-            <RootStackNav.Screen name="Main" component={MainTab as unknown as React.ComponentType<any>} />
+            <RootStackNav.Screen
+                name="LoginScreen"
+                component={LoginScreen as any}
+            />
+            <RootStackNav.Screen
+                name="Main"
+                component={MainTab as any}
+            />
         </RootStackNav.Navigator>
     );
 };

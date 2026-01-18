@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from "react-native";
 
-type ProfileScreenProps = BottomTabScreenProps<MainTabParamList, keyof MainTabParamList>;
+type ProfileScreenProps = BottomTabScreenProps<MainTabParamList, 'Profile'>;
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     const rootNavigation = useNavigation<RootStackNavigationProp>();

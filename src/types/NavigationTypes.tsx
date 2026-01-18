@@ -9,7 +9,8 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  Contact: { source?: string }; // Contoh: ContactScreen bisa menerima parameter opsional
+  Contact: { source?: string };
+  Profile: undefined;
   HomeScreen: undefined;
   Departemen: { selectedDept?: any };
   Employee: {
