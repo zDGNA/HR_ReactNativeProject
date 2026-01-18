@@ -26,7 +26,7 @@ const LoginScreen = () => {
             <View style={styles.header}>
                 <Card style={styles.logoCard}>
                     <CardContent style={styles.logoCardContent}>
-                        <Text style={styles.logoText}>Logo</Text>
+                        <Text style={styles.logoText}></Text>
                     </CardContent>
                 </Card>
                 <Text style={styles.headerTitle}>Welcome Back!</Text>
@@ -100,14 +100,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
         paddingTop: 20,
     },
-    headerTitle: { // 👈 Style untuk teks tambahan di header
+    headerTitle: {
         fontSize: 28,
         fontWeight: '700',
         color: '#1d04d9ff',
         marginTop: 16,
     },
     logoCard: {
-        width: 120, // 👈 Sedikit diperkecil
+        width: 120,
         height: 120,
         borderRadius: 60,
         backgroundColor: '#1d04d9ff',
@@ -120,39 +120,39 @@ const styles = StyleSheet.create({
     },
     logoText: {
         color: 'white',
-        fontSize: 22, // 👈 Sedikit diperkecil
+        fontSize: 22,
         fontWeight: 'bold',
     },
     body: {
         flex: 2,
     },
-    formContainer: { // 👈 Container baru untuk centering form
+    formContainer: { // Container baru untuk centering form
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 24,
     },
     card: {
-        // Hapus marginHorizontal, marginTop, marginBottom karena sudah ditangani oleh formContainer
+
     },
     shadow: {
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 4, // 👈 Shadow lebih menonjol
+            height: 4,
         },
-        shadowOpacity: 0.15, // 👈 Sedikit lebih tipis
+        shadowOpacity: 0.15,
         shadowRadius: 5.46,
-        elevation: 10, // 👈 Elevation lebih tinggi
+        elevation: 10,
     },
     cardContent: {
-        // padding: 24, Dihapus karena ditangani oleh paddingVertical: 32 di JSX
+
     },
     input: {
         borderWidth: 1,
         borderColor: '#e2e8f0',
-        borderRadius: 10, // 👈 Radius lebih besar
+        borderRadius: 10,
         paddingHorizontal: 16,
-        paddingVertical: 14, // 👈 Padding lebih tebal
+        paddingVertical: 14,
         marginBottom: 16,
         fontSize: 16,
         color: '#333',
@@ -162,8 +162,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         alignItems: 'center',
-        marginTop: 30, // 👈 Margin lebih besar
-        shadowColor: '#1d04d9ff', // 👈 Tambahkan shadow warna tombol
+        marginTop: 30,
+        shadowColor: '#1d04d9ff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 5,
@@ -171,25 +171,25 @@ const styles = StyleSheet.create({
     },
     signInButtonText: {
         color: 'white',
-        fontWeight: '800', // 👈 Lebih tebal
+        fontWeight: '800',
         fontSize: 18,
     },
     signUpButton: {
-        backgroundColor: 'transparent', // 👈 Ubah menjadi transparan
+        backgroundColor: 'transparent',
         borderWidth: 2,
-        borderColor: '#1d04d9ff', // 👈 Border menggunakan warna utama
+        borderColor: '#1d04d9ff',
         padding: 16,
         borderRadius: 10,
         alignItems: 'center',
-        marginTop: 16, // 👈 Sesuaikan margin
+        marginTop: 16,
     },
     signUpButtonText: {
         fontWeight: '700',
         fontSize: 18,
-        color: '#1d04d9ff', // 👈 Warna teks sesuai border
+        color: '#1d04d9ff',
     },
     footer: {
-        height: 60, // 👈 Sedikit lebih pendek
+        height: 60,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f8fafc',
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     },
     footerText: {
         color: '#94a3b8',
-        fontSize: 12, // 👈 Sedikit lebih kecil
-    }
+        fontSize: 12,
+    },
 });
 
 export default LoginScreen;

@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
     listContent: {
         padding: 20,
     },
-    // Mengubah DivisionItem menjadi divisionItem (huruf kecil) agar sesuai dengan penggunaan di renderAllDivision
     divisionItem: {
         backgroundColor: '#ffffff',
         paddingVertical: 16,
@@ -303,7 +302,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 16,
     },
-    // Hapus style itemIcon karena icon sudah di-style di definisinya (<Ionicons>)
     itemContent: {
         flex: 1,
     },

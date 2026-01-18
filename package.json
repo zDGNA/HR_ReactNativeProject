@@ -45,5 +45,18 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "description": "This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zDGNA/react-native_project-sn2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zDGNA/react-native_project-sn2/issues"
+  },
+  "homepage": "https://github.com/zDGNA/react-native_project-sn2#readme"
 }

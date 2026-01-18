@@ -5,8 +5,7 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Card from '../components/ui/card/index';
 import CardContent from '../components/ui/card/content';
-// Anggap Anda memiliki komponen ikon yang diimpor, misalnya dari 'react-native-vector-icons/Ionicons'
-// import Ionicons from 'react-native-vector-icons/Ionicons'; 
+
 
 type ContactScreenProps = BottomTabScreenProps<MainTabParamList, 'Contact'>;
 
@@ -61,7 +60,7 @@ const ContactScreen: React.FC<ContactScreenProps> = ({ navigation, route }) => {
                         <View style={contactStyles.divider} />
                         <ContactItem
                             title="Alamat"
-                            value="Jl. Perusahaan No. 123, Jakarta"
+                            value="Jl. Kangin Kauh No. 123, Denpasar, Bali"
                             iconName="location-outline"
                         />
                     </CardContent>
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
     },
     contactCard: {
-        // Menggunakan lebar penuh dalam padding 24
         width: '100%',
         borderRadius: 16,
         backgroundColor: '#f8fafc',
@@ -123,7 +121,7 @@ const contactStyles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#e0e7ff', // Warna latar belakang ikon
+        backgroundColor: '#e0e7ff',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
@@ -139,7 +137,7 @@ const contactStyles = StyleSheet.create({
     value: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1d04d9ff', // Warna utama
+        color: '#1d04d9ff',
     },
     divider: {
         height: 1,
