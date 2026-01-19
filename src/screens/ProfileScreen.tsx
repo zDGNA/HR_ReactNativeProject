@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, ScrollView, ActivityIndicator } from "react-native";
 import { MainTabParamList } from '../types/NavigationTypes';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useNavigation } from "@react-navigation/native";
@@ -10,15 +10,17 @@ import CardContent from '../components/ui/card/content';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from "react-native";
+import api from "../services/api";
 
 type ProfileScreenProps = BottomTabScreenProps<MainTabParamList, 'Profile'>;
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     const rootNavigation = useNavigation<RootStackNavigationProp>();
-    const { username, setUsername: setGlobalUsername } = useUser();
+    const { user, username, setUsername: setGlobalUsername, setUser, logout } = useUser();
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [editUsername, setEditUsername] = useState(username);
     const [oldPassword, setOldPassword] = useState('');
@@ -28,17 +30,33 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleEditUsername = () => {
+    const handleEditUsername = async () => {
         if (editUsername.trim().length < 3) {
             Alert.alert('Error', 'Username minimal 3 karakter');
             return;
         }
-        setGlobalUsername(editUsername);
-        setShowEditModal(false);
-        Alert.alert('Success', 'Username berhasil diubah');
+
+        setIsLoading(true);
+        try {
+            const response = await api.put('/users/update-username', {
+                userId: user?.id,
+                newUsername: editUsername
+            });
+
+            if (response.data.success) {
+                setGlobalUsername(editUsername);
+                if (user) setUser({ ...user, username: editUsername });
+                setShowEditModal(false);
+                Alert.alert('Success', 'Username berhasil diubah');
+            }
+        } catch (error: any) {
+            Alert.alert('Error', error.response?.data?.message || 'Gagal terhubung ke server');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         if (!oldPassword) {
             Alert.alert('Error', 'Password lama harus diisi');
             return;
@@ -56,17 +74,26 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
             return;
         }
 
-        // Validasi password lama (dalam praktik akan ke backend)
-        if (oldPassword !== 'password123') {
-            Alert.alert('Error', 'Password lama tidak sesuai');
-            return;
-        }
+        setIsLoading(true);
+        try {
+            const response = await api.put('/users/update-password', {
+                userId: user?.id,
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            });
 
-        setShowPasswordModal(false);
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        Alert.alert('Success', 'Password berhasil diubah');
+            if (response.data.success) {
+                setShowPasswordModal(false);
+                setOldPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                Alert.alert('Success', 'Password berhasil diubah');
+            }
+        } catch (error: any) {
+            Alert.alert('Error', error.response?.data?.message || 'Password lama tidak sesuai');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleLogout = () => {
@@ -78,7 +105,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                 {
                     text: 'Logout',
                     style: 'destructive',
-                    onPress: () => {
+                    onPress: async () => {
+                        await logout();
                         rootNavigation.navigate('LoginScreen');
                     }
                 }
@@ -109,7 +137,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                 </View>
 
                 <View style={styles.content}>
-                    {/* Profile Info Card */}
                     <Card style={styles.profileCard}>
                         <CardContent style={styles.cardContentStyle}>
                             <View style={styles.profileHeader}>
@@ -119,19 +146,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                                 />
                                 <View style={styles.userInfo}>
                                     <Text style={styles.usernameDisplay}>{username}</Text>
-                                    <Text style={styles.roleDisplay}>Administrator HRD</Text>
-                                    <Text style={styles.emailDisplay}>admin@perusahaan.com</Text>
+                                    <Text style={styles.roleDisplay}>{user?.role || 'Administrator HRD'}</Text>
+                                    <Text style={styles.emailDisplay}>{user?.email || 'admin@perusahaan.com'}</Text>
                                 </View>
                             </View>
                         </CardContent>
                     </Card>
 
-                    {/* Settings Card */}
                     <Card style={styles.settingsCard}>
                         <CardContent style={styles.cardContentStyle}>
                             <Text style={styles.settingsTitle}>Pengaturan Akun</Text>
 
-                            {/* Edit Username */}
                             <TouchableOpacity
                                 style={styles.settingItem}
                                 onPress={() => setShowEditModal(true)}
@@ -150,7 +175,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
                             <View style={styles.divider} />
 
-                            {/* Change Password */}
                             <TouchableOpacity
                                 style={styles.settingItem}
                                 onPress={() => setShowPasswordModal(true)}
@@ -169,7 +193,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                         </CardContent>
                     </Card>
 
-                    {/* Company Info Card */}
                     <Card style={styles.infoCard}>
                         <CardContent style={styles.cardContentStyle}>
                             <Text style={styles.companyName}>Tentang Perusahaan</Text>
@@ -181,7 +204,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                         </CardContent>
                     </Card>
 
-                    {/* Logout Button */}
                     <TouchableOpacity
                         style={styles.logoutButton}
                         onPress={handleLogout}
@@ -198,7 +220,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                 </View>
             </ScrollView>
 
-            {/* Modal Edit Username */}
             <Modal
                 visible={showEditModal}
                 transparent
@@ -212,8 +233,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                                 <Text style={styles.modalHeaderButton}>Batal</Text>
                             </TouchableOpacity>
                             <Text style={styles.modalTitle}>Ubah Username</Text>
-                            <TouchableOpacity onPress={handleEditUsername}>
-                                <Text style={styles.modalHeaderButtonSave}>Simpan</Text>
+                            <TouchableOpacity onPress={handleEditUsername} disabled={isLoading}>
+                                {isLoading ? <ActivityIndicator size="small" color="#1d04d9ff" /> : <Text style={styles.modalHeaderButtonSave}>Simpan</Text>}
                             </TouchableOpacity>
                         </View>
 
@@ -235,7 +256,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                 </View>
             </Modal>
 
-            {/* Modal Change Password */}
             <Modal
                 visible={showPasswordModal}
                 transparent
@@ -249,13 +269,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                                 <Text style={styles.modalHeaderButton}>Batal</Text>
                             </TouchableOpacity>
                             <Text style={styles.modalTitle}>Ubah Password</Text>
-                            <TouchableOpacity onPress={handleChangePassword}>
-                                <Text style={styles.modalHeaderButtonSave}>Simpan</Text>
+                            <TouchableOpacity onPress={handleChangePassword} disabled={isLoading}>
+                                {isLoading ? <ActivityIndicator size="small" color="#1d04d9ff" /> : <Text style={styles.modalHeaderButtonSave}>Simpan</Text>}
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView style={styles.modalBody}>
-                            {/* Old Password */}
                             <Text style={styles.inputLabel}>Password Lama</Text>
                             <View style={styles.passwordInputContainer}>
                                 <TextInput
@@ -278,7 +297,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* New Password */}
                             <Text style={[styles.inputLabel, { marginTop: 16 }]}>Password Baru</Text>
                             <View style={styles.passwordInputContainer}>
                                 <TextInput
@@ -301,7 +319,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* Confirm Password */}
                             <Text style={[styles.inputLabel, { marginTop: 16 }]}>Konfirmasi Password</Text>
                             <View style={styles.passwordInputContainer}>
                                 <TextInput
@@ -525,7 +542,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#94a3b8',
     },
-    // Modal Styles
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',

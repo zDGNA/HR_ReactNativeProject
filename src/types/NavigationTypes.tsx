@@ -1,10 +1,10 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-// 1. Tentukan semua rute dan parameter yang mereka terima
+
 export type RootStackParamList = {
   LoginScreen: undefined;
-  Main: undefined;// Tidak ada parameter yang dilewatkan
+  Main: undefined;
 };
 
 export type MainTabParamList = {
@@ -20,6 +20,17 @@ export type MainTabParamList = {
     departmentColor?: string;
   } | undefined;
 
+}
+export interface Employee {
+  id: number;
+  name: string;
+  position: string;
+  status: 'Active' | 'Inactive';
+  age: number;
+  email: string;
+  phone: string;
+  address: string;
+  contract_end: string;
 }
 
 export type RootStackNavigationProp = NativeStackNavigationProp<RootStackParamList>;

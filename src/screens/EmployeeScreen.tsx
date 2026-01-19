@@ -1,117 +1,153 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import api from "../services/api";
+import { Employee } from "../types/NavigationTypes";
 
-const employees = [
-    {
-        id: '1', name: 'Anna', status: 'Active',
-        biodata: { age: 25, email: 'anna@email.com', phone: '0812-1234-5678', address: 'Jl. Sudirman No. 10', position: 'Software Engineer', contractEndDate: '2026-07-20' }
-    },
-    {
-        id: '2', name: 'Budi', status: 'Inactive',
-        biodata: { age: 30, email: 'budi@email.com', phone: '0857-9876-5432', address: 'Jl. Diponegoro No. 7', position: 'HR Manager', contractEndDate: '2025-02-20' }
-    },
-    {
-        id: '3', name: 'Carla', status: 'Active',
-        biodata: { age: 29, email: 'carla@email.com', phone: '0821-2222-3333', address: 'Jl. Gatot Subroto No. 5', position: 'Marketing Lead', contractEndDate: '2026-07-20' }
-    },
-];
+const EmployeeListScreen = () => {
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [newName, setNewName] = useState("");
 
-type EmployeeScreenProps = { navigation: { goBack: () => void } };
-
-const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation }) => {
-    const [openId, setOpenId] = useState<string | null>(null);
-
-    const toggleDropdown = (id: string) => {
-        setOpenId(openId === id ? null : id);
+    const fetchEmployees = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get("/employees");
+            if (response.data && response.data.success) {
+                setEmployees(response.data.data || []);
+            } else {
+                setEmployees([]);
+            }
+        } catch (error) {
+            setEmployees([]);
+            Alert.alert("Error", "Gagal mengambil data karyawan");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const renderItem = ({ item }: { item: typeof employees[0] }) => (
-        <View style={styles.itemContainer}>
-            <View style={styles.labelRow}>
-                <Text style={styles.employeeName}>{item.name}</Text>
-                <View style={styles.actionContainer}>
-                    <View
-                        style={[
-                            styles.statusBadge,
-                            { backgroundColor: item.status === 'Active' ? '#19c37d' : '#ef4444' }
-                        ]}
-                    >
-                        <Text style={styles.statusText}>{item.status}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => toggleDropdown(item.id)}>
-                        <Ionicons
-                            name="ellipsis-vertical-outline"
-                            size={28}
-                            color="#000000"
-                            style={styles.iconMark}
-                        />
-                    </TouchableOpacity>
-                </View>
-            </View>
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
 
-            {openId === item.id && (
-                <View style={styles.dropdown}>
-                    <Text style={styles.dropdownTitle}>Biodata</Text>
-                    <Text style={styles.dropdownText}>Nama: {item.name}</Text>
-                    <Text style={styles.dropdownText}>Posisi: {item.biodata.position}</Text>
-                    <Text style={styles.dropdownText}>Usia: {item.biodata.age}</Text>
-                    <Text style={styles.dropdownText}>Email: {item.biodata.email}</Text>
-                    <Text style={styles.dropdownText}>Telepon: {item.biodata.phone}</Text>
-                    <Text style={styles.dropdownText}>Alamat: {item.biodata.address}</Text>
-                    <Text style={styles.dropdownText}>Contract End Date: {item.biodata.contractEndDate}</Text>
-                </View>
-            )}
-        </View>
-    );
+    const handleAddEmployee = async () => {
+        if (!newName.trim()) return;
+        try {
+            await api.post("/employees", {
+                name: newName,
+                position: "Staff",
+                status: "Active",
+                age: 25,
+                email: "-",
+                phone: "-",
+                address: "-",
+                contract_end: "2026-01-01"
+            });
+            setNewName("");
+            setModalVisible(false);
+            fetchEmployees();
+        } catch (error) {
+            Alert.alert("Error", "Gagal menambah karyawan");
+        }
+    };
+
+    const toggleStatus = async (id: number, currentStatus: string) => {
+        const nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
+        try {
+            await api.put(`/employees/${id}/status`, { status: nextStatus });
+            fetchEmployees();
+        } catch (error) {
+            Alert.alert("Error", "Gagal mengubah status");
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color="#1d04d9ff" />
+            </View>
+        );
+    }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.headerRow}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={27} color="#1d04d9ff" />
-                </TouchableOpacity>
+        <View style={styles.container}>
+            <View style={styles.header}>
                 <Text style={styles.headerTitle}>Employee List</Text>
-                <View style={styles.headerSpacer} />
+                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    <Ionicons name="add-circle" size={32} color="#1d04d9ff" />
+                </TouchableOpacity>
             </View>
 
-            <FlatList
-                data={employees}
-                keyExtractor={item => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                showsVerticalScrollIndicator={false}
-            />
-        </SafeAreaView>
+            <ScrollView contentContainerStyle={styles.list}>
+                {Array.isArray(employees) && employees.length > 0 ? (
+                    employees.map((item) => (
+                        <View key={item.id.toString()} style={styles.card}>
+                            <View style={styles.cardHeader}>
+                                <Text style={styles.employeeName}>{item.name}</Text>
+                                <View style={styles.actionContainer}>
+                                    <TouchableOpacity
+                                        style={[styles.statusBadge, { backgroundColor: item.status === "Active" ? "#2ecc71" : "#e74c3c" }]}
+                                        onPress={() => toggleStatus(item.id, item.status)}
+                                    >
+                                        <Text style={styles.statusText}>{item.status}</Text>
+                                    </TouchableOpacity>
+                                    <Ionicons name="ellipsis-vertical" size={20} color="black" />
+                                </View>
+                            </View>
+                        </View>
+                    ))
+                ) : (
+                    <View style={styles.centerContainer}>
+                        <Text>Tidak ada data karyawan</Text>
+                    </View>
+                )}
+            </ScrollView>
+
+            <Modal visible={modalVisible} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Tambah Karyawan</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nama Lengkap"
+                            value={newName}
+                            onChangeText={setNewName}
+                        />
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.btnCancel}>
+                                <Text>Batal</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleAddEmployee} style={styles.btnSave}>
+                                <Text style={{ color: 'white' }}>Simpan</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f1f5f9" },
-    headerRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingTop: 10,
-        paddingBottom: 18,
-        justifyContent: "space-between",
-    },
-    headerTitle: { fontSize: 22, fontWeight: "bold", color: "#1d04d9ff", letterSpacing: 0.5 },
-    headerSpacer: { width: 30 },
-    listContent: { paddingHorizontal: 16, paddingBottom: 32 },
-    itemContainer: { backgroundColor: "#fff", borderRadius: 16, paddingVertical: 20, paddingHorizontal: 20, elevation: 3 },
-    labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    actionContainer: { flexDirection: "row", alignItems: "center" },
-    employeeName: { fontSize: 18, fontWeight: "600", color: "#22223b" },
-    statusBadge: { borderRadius: 100, paddingVertical: 5, paddingHorizontal: 15, minWidth: 80, alignItems: "center" },
-    statusText: { color: "#fff", fontWeight: "bold", fontSize: 14 },
-    iconMark: { marginLeft: 8 },
-    separator: { height: 14 },
-    dropdown: { backgroundColor: "#e3eafe", marginTop: 12, borderRadius: 12, padding: 18 },
-    dropdownTitle: { fontWeight: "bold", fontSize: 15, color: "#1d04d9ff", marginBottom: 8 },
-    dropdownText: { fontSize: 14, color: "#343a40", marginBottom: 6 },
+    container: { flex: 1, backgroundColor: "#f8f9fa" },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 50 },
+    headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#1d04d9ff' },
+    list: { padding: 16 },
+    card: { backgroundColor: 'white', borderRadius: 15, padding: 16, marginBottom: 12, elevation: 2 },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    employeeName: { fontSize: 18, fontWeight: '600' },
+    actionContainer: { flexDirection: 'row', alignItems: 'center' },
+    statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginRight: 8 },
+    statusText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+    modalContent: { backgroundColor: 'white', borderRadius: 20, padding: 20 },
+    modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
+    input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 20 },
+    modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
+    btnCancel: { marginRight: 15, padding: 10 },
+    btnSave: { backgroundColor: '#1d04d9ff', padding: 10, borderRadius: 8, paddingHorizontal: 20 }
 });
 
-export default EmployeeScreen;
+export default EmployeeListScreen;
