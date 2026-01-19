@@ -71,7 +71,35 @@ app.post('/api/auth/login', (req, res) => {
   );
 });
 
-// 3. Employees: Get All
+// 3. Divisions: Get All with Employee Count
+app.get('/api/divisions', (req, res) => {
+  const query = `
+    SELECT 
+      d.id,
+      d.name,
+      d.description,
+      d.color,
+      d.icon,
+      COUNT(e.id) as employee_count
+    FROM divisions d
+    LEFT JOIN employees e ON d.id = e.division_id AND e.status = 'Active'
+    GROUP BY d.id, d.name, d.description, d.color, d.icon
+    ORDER BY d.name ASC
+  `;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('❌ FETCH DIVISIONS ERROR:', err);
+      return res
+        .status(500)
+        .json({ success: false, message: 'Database error' });
+    }
+    console.log(`📊 FETCHED ${results.length} divisions with employee counts`);
+    res.json({ success: true, data: results || [] });
+  });
+});
+
+// 4. Employees: Get All
 app.get('/api/employees', (req, res) => {
   const query = `
     SELECT e.*, d.name as division_name, d.color as division_color, d.icon as division_icon
@@ -91,7 +119,32 @@ app.get('/api/employees', (req, res) => {
   });
 });
 
-// 4. Employees: Add New
+// 5. Employees: Get by Division ID
+app.get('/api/employees/division/:divisionId', (req, res) => {
+  const { divisionId } = req.params;
+  const query = `
+    SELECT e.*, d.name as division_name, d.color as division_color, d.icon as division_icon
+    FROM employees e 
+    LEFT JOIN divisions d ON e.division_id = d.id
+    WHERE e.division_id = ?
+    ORDER BY e.name ASC
+  `;
+
+  connection.query(query, [divisionId], (err, results) => {
+    if (err) {
+      console.error('❌ FETCH EMPLOYEES BY DIVISION ERROR:', err);
+      return res
+        .status(500)
+        .json({ success: false, message: 'Database error' });
+    }
+    console.log(
+      `📊 FETCHED ${results.length} employees for division ID ${divisionId}`,
+    );
+    res.json({ success: true, data: results || [] });
+  });
+});
+
+// 6. Employees: Add New
 app.post('/api/employees', (req, res) => {
   const {
     name,
@@ -134,7 +187,7 @@ app.post('/api/employees', (req, res) => {
   );
 });
 
-// 5. Employees: Update
+// 7. Employees: Update
 app.put('/api/employees/:id', (req, res) => {
   const { id } = req.params;
   const {
@@ -186,7 +239,7 @@ app.put('/api/employees/:id', (req, res) => {
   );
 });
 
-// 6. Employees: Delete
+// 8. Employees: Delete
 app.delete('/api/employees/:id', (req, res) => {
   const { id } = req.params;
 
@@ -209,7 +262,7 @@ app.delete('/api/employees/:id', (req, res) => {
   );
 });
 
-// 7. Employees: Update Status
+// 9. Employees: Update Status
 app.put('/api/employees/:id/status', (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -227,7 +280,7 @@ app.put('/api/employees/:id/status', (req, res) => {
   );
 });
 
-// 8. Users: Update Username
+// 10. Users: Update Username
 app.put('/api/users/update-username', (req, res) => {
   const { userId, newUsername } = req.body;
   connection.query(
@@ -244,7 +297,7 @@ app.put('/api/users/update-username', (req, res) => {
   );
 });
 
-// 9. Users: Update Password
+// 11. Users: Update Password
 app.put('/api/users/update-password', (req, res) => {
   const { userId, oldPassword, newPassword } = req.body;
 
@@ -307,7 +360,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('📋 Available endpoints:');
   console.log('   - GET    /');
   console.log('   - POST   /api/auth/login');
+  console.log('   - GET    /api/divisions');
   console.log('   - GET    /api/employees');
+  console.log('   - GET    /api/employees/division/:divisionId');
   console.log('   - POST   /api/employees');
   console.log('   - PUT    /api/employees/:id');
   console.log('   - DELETE /api/employees/:id');

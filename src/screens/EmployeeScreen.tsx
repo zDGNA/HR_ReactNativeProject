@@ -2,10 +2,27 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator, Platform } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../services/api";
 import { Employee } from "../types/NavigationTypes";
 
-const EmployeeListScreen = () => {
+type RootStackParamList = {
+    Employee: {
+        divisionId: string;
+        divisionName: string;
+        divisionIcon: string;
+        divisionColor: string;
+        employeeCount: number;
+    };
+    Division: undefined;
+};
+
+type EmployeeScreenProps = NativeStackScreenProps<RootStackParamList, 'Employee'>;
+
+const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation, route }) => {
+    const { divisionId, divisionName, divisionIcon, divisionColor } = route.params;
+
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -13,7 +30,6 @@ const EmployeeListScreen = () => {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
-    // Form States
     const [formData, setFormData] = useState({
         id: 0,
         name: "",
@@ -24,13 +40,13 @@ const EmployeeListScreen = () => {
         address: "",
         contract_end_date: new Date(),
         status: "Active",
-        division_id: 1
+        division_id: parseInt(divisionId)
     });
 
     const fetchEmployees = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/employees");
+            const response = await api.get(`/employees/division/${divisionId}`);
             if (response.data && response.data.success) {
                 setEmployees(response.data.data || []);
             } else {
@@ -46,7 +62,7 @@ const EmployeeListScreen = () => {
 
     useEffect(() => {
         fetchEmployees();
-    }, []);
+    }, [divisionId]);
 
     const resetForm = () => {
         setFormData({
@@ -59,7 +75,7 @@ const EmployeeListScreen = () => {
             address: "",
             contract_end_date: new Date(),
             status: "Active",
-            division_id: 1
+            division_id: parseInt(divisionId)
         });
         setEditMode(false);
     };
@@ -80,14 +96,13 @@ const EmployeeListScreen = () => {
             address: employee.address,
             contract_end_date: employee.contract_end ? new Date(employee.contract_end) : new Date(),
             status: employee.status,
-            division_id: 1
+            division_id: parseInt(divisionId)
         });
         setEditMode(true);
         setModalVisible(true);
     };
 
     const handleSaveEmployee = async () => {
-        // Validasi
         if (!formData.name.trim()) {
             Alert.alert("Error", "Nama wajib diisi");
             return;
@@ -123,11 +138,9 @@ const EmployeeListScreen = () => {
             };
 
             if (editMode) {
-                // Update
                 await api.put(`/employees/${formData.id}`, payload);
                 Alert.alert("Berhasil", "Data karyawan berhasil diperbarui");
             } else {
-                // Create
                 await api.post("/employees", payload);
                 Alert.alert("Berhasil", "Karyawan baru berhasil ditambahkan");
             }
@@ -186,19 +199,55 @@ const EmployeeListScreen = () => {
 
     if (loading) {
         return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#1d04d9ff" />
-            </View>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Ionicons name="arrow-back" size={27} color="#ffffff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>{divisionName}</Text>
+                    <View style={{ width: 32 }} />
+                </View>
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color="#1d04d9ff" />
+                </View>
+            </SafeAreaView>
         );
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Employee List</Text>
-                <TouchableOpacity onPress={openAddModal}>
-                    <Ionicons name="add-circle" size={32} color="#1d04d9ff" />
+        <SafeAreaView style={styles.container}>
+            <View style={[styles.header, { backgroundColor: divisionColor }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={27} color="#ffffff" />
                 </TouchableOpacity>
+                <View style={styles.headerCenter}>
+                    <Ionicons name={divisionIcon as any} size={24} color="#ffffff" />
+                    <Text style={styles.headerTitle}>{divisionName}</Text>
+                </View>
+                <TouchableOpacity onPress={openAddModal}>
+                    <Ionicons name="add-circle" size={32} color="#ffffff" />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.statsBar}>
+                <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{employees.length}</Text>
+                    <Text style={styles.statLabel}>Total Karyawan</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>
+                        {employees.filter(e => e.status === 'Active').length}
+                    </Text>
+                    <Text style={styles.statLabel}>Active</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>
+                        {employees.filter(e => e.status === 'Inactive').length}
+                    </Text>
+                    <Text style={styles.statLabel}>Inactive</Text>
+                </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.list}>
@@ -278,19 +327,22 @@ const EmployeeListScreen = () => {
                         </View>
                     ))
                 ) : (
-                    <View style={styles.centerContainer}>
-                        <Text>Tidak ada data karyawan</Text>
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="people-outline" size={64} color="#cbd5e1" />
+                        <Text style={styles.emptyText}>Belum ada karyawan di divisi ini</Text>
+                        <TouchableOpacity style={styles.emptyButton} onPress={openAddModal}>
+                            <Text style={styles.emptyButtonText}>Tambah Karyawan Pertama</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             </ScrollView>
 
-            {/* Modal Tambah/Edit Karyawan */}
             <Modal visible={modalVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>
-                                {editMode ? "Edit Karyawan" : "Tambah Karyawan"}
+                                {editMode ? "Edit Karyawan" : `Tambah Karyawan - ${divisionName}`}
                             </Text>
                             <TouchableOpacity onPress={() => {
                                 setModalVisible(false);
@@ -436,19 +488,25 @@ const EmployeeListScreen = () => {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#f8f9fa" },
-    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 50 },
-    headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#1d04d9ff' },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 10 },
+    headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#ffffff' },
+    statsBar: { flexDirection: 'row', backgroundColor: 'white', padding: 16, marginHorizontal: 16, marginTop: 16, borderRadius: 12, elevation: 2 },
+    statItem: { flex: 1, alignItems: 'center' },
+    statNumber: { fontSize: 24, fontWeight: 'bold', color: '#1d04d9ff' },
+    statLabel: { fontSize: 12, color: '#666', marginTop: 4 },
+    statDivider: { width: 1, backgroundColor: '#e0e0e0', marginHorizontal: 8 },
     list: { padding: 16 },
     card: { backgroundColor: 'white', borderRadius: 15, padding: 16, marginBottom: 12, elevation: 2 },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    employeeName: { fontSize: 18, fontWeight: '600' },
+    employeeName: { fontSize: 18, fontWeight: '600', flex: 1 },
     actionContainer: { flexDirection: 'row', alignItems: 'center' },
     statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginRight: 8 },
     statusText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
@@ -463,10 +521,14 @@ const styles = StyleSheet.create({
     btnEditText: { color: 'white', fontWeight: 'bold', marginLeft: 5 },
     btnDelete: { flex: 1, flexDirection: 'row', backgroundColor: '#ef4444', padding: 10, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
     btnDeleteText: { color: 'white', fontWeight: 'bold', marginLeft: 5 },
+    emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
+    emptyText: { fontSize: 16, color: '#94a3b8', marginTop: 16, marginBottom: 24 },
+    emptyButton: { backgroundColor: '#1d04d9ff', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
+    emptyButtonText: { color: 'white', fontWeight: '600' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
-    modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#1d04d9ff' },
+    modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#1d04d9ff', flex: 1 },
     modalBody: { padding: 20 },
     modalFooter: { flexDirection: 'row', padding: 20, borderTopWidth: 1, borderTopColor: '#eee', gap: 10 },
     label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8, marginTop: 12 },
@@ -487,4 +549,4 @@ const styles = StyleSheet.create({
     btnSaveText: { fontSize: 16, fontWeight: '600', color: 'white' }
 });
 
-export default EmployeeListScreen;
+export default EmployeeScreen;

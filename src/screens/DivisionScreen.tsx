@@ -1,94 +1,82 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import api from "../services/api";
 
-/**
- * Mendefinisikan tipe data untuk item Divisi.
- */
 type DivisionItem = {
     id: string;
     name: string;
     description: string;
-    employeeCount: number;
-    icon: React.ReactElement;
+    employee_count: number;
+    icon: string;
     color: string;
 };
 
-/**
- * Mendefinisikan tipe data untuk parameter rute DivisionScreen.
- * RootStackParamList harus didefinisikan secara global atau di file terpisah.
- * Untuk contoh ini, kita asumsikan struktur rute minimal.
- */
 type RootStackParamList = {
     Division: { selectedDept?: DivisionItem } | undefined;
-    Employee: { DivisionId: string; DivisionName: string; DivisionIcon: React.ReactElement; DivisionColor: string };
-    // Tambahkan rute lain yang mungkin ada
+    Employee: {
+        divisionId: string;
+        divisionName: string;
+        divisionIcon: string;
+        divisionColor: string;
+        employeeCount: number;
+    };
 };
 
 type DivisionScreenProps = NativeStackScreenProps<RootStackParamList, 'Division'>;
 
-const allDivision: DivisionItem[] = [
-    {
-        id: '1',
-        name: 'IT',
-        description: 'Information Technology',
-        employeeCount: 25,
-        icon: <Ionicons name="desktop" size={24} color="#ffffffff" />,
-        color: '#3b82f6',
-    },
-    {
-        id: '2',
-        name: 'HR',
-        description: 'Human Resources',
-        employeeCount: 15,
-        icon: <Ionicons name="people" size={24} color="#ffffffff" />,
-        color: '#ec4899',
-    },
-    {
-        id: '3',
-        name: 'Finance',
-        description: 'Finance Department',
-        employeeCount: 20,
-        icon: <Ionicons name="wallet" size={24} color="#ffffffff" />,
-        color: '#10b981',
-    },
-    {
-        id: '4',
-        name: 'Marketing',
-        description: 'Marketing Division',
-        employeeCount: 18,
-        icon: <Ionicons name="megaphone" size={24} color="#ffffffff" />,
-        color: '#f59e0b',
-    },
-];
-
 const DivisionScreen: React.FC<DivisionScreenProps> = ({ navigation, route }) => {
-    // Menggunakan optional chaining dan default value untuk menghindari error jika route.params undefined
+    const [divisions, setDivisions] = useState<DivisionItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const selectedDept = route.params?.selectedDept;
+
+    useEffect(() => {
+        fetchDivisions();
+    }, []);
+
+    const fetchDivisions = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/divisions');
+            if (response.data && response.data.success) {
+                setDivisions(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching divisions:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDivisionSelect = (dept: DivisionItem) => {
         navigation.navigate('Employee', {
-            DivisionId: dept.id,
-            DivisionName: dept.name,
-            DivisionIcon: dept.icon,
-            DivisionColor: dept.color
+            divisionId: dept.id,
+            divisionName: dept.name,
+            divisionIcon: dept.icon,
+            divisionColor: dept.color,
+            employeeCount: dept.employee_count
         });
+    };
+
+    const getIconComponent = (iconName: string) => {
+        return <Ionicons name={iconName as any} size={24} color="#ffffffff" />;
     };
 
     const renderDivisionDetail = (dept: DivisionItem) => (
         <View style={styles.detailContainer}>
             <View style={[styles.detailHeader, { backgroundColor: dept.color }]}>
-                {/* Render icon langsung sebagai elemen */}
-                <View style={styles.detailIconContainer}>{dept.icon}</View>
+                <View style={styles.detailIconContainer}>
+                    {getIconComponent(dept.icon)}
+                </View>
                 <Text style={styles.detailTitle}>{dept.name}</Text>
                 <Text style={styles.detailDesc}>{dept.description}</Text>
             </View>
 
             <View style={styles.statsContainer}>
                 <View style={styles.statBox}>
-                    <Text style={styles.statNumber}>{dept.employeeCount}</Text>
+                    <Text style={styles.statNumber}>{dept.employee_count}</Text>
                     <Text style={styles.statLabel}>Employees</Text>
                 </View>
             </View>
@@ -111,53 +99,69 @@ const DivisionScreen: React.FC<DivisionScreenProps> = ({ navigation, route }) =>
         </View>
     );
 
-    const renderAllDivision = () => (
-        <FlatList
-            data={allDivision}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-                <TouchableOpacity
-                    style={styles.divisionItem}
-                    // Menyetel params untuk menampilkan detail divisi yang dipilih
-                    onPress={() => navigation.setParams({ selectedDept: item })}
-                    activeOpacity={0.7}
-                >
-                    <View style={[styles.itemIconBox, { backgroundColor: item.color }]}>
-                        {/* Render icon langsung */}
-                        {item.icon}
-                    </View>
-                    <View style={styles.itemContent}>
-                        <Text style={styles.itemName}>{item.name}</Text>
-                        <Text style={styles.itemDesc}>{item.description}</Text>
-                        <Text style={styles.itemEmployees}>{item.employeeCount} employees</Text>
-                    </View>
-                    <Text style={styles.itemArrow}>→</Text>
-                </TouchableOpacity>
-            )}
-            // FlatList menangani scrolling, tidak perlu ScrollView di luar
-            contentContainerStyle={styles.listContent}
-        />
-    );
+    const renderAllDivision = () => {
+        if (loading) {
+            return (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#1d04d9ff" />
+                    <Text style={styles.loadingText}>Loading divisions...</Text>
+                </View>
+            );
+        }
+
+        return (
+            <FlatList
+                data={divisions}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        style={styles.divisionItem}
+                        onPress={() => navigation.setParams({ selectedDept: item })}
+                        activeOpacity={0.7}
+                    >
+                        <View style={[styles.itemIconBox, { backgroundColor: item.color }]}>
+                            {getIconComponent(item.icon)}
+                        </View>
+                        <View style={styles.itemContent}>
+                            <Text style={styles.itemName}>{item.name}</Text>
+                            <Text style={styles.itemDesc}>{item.description}</Text>
+                            <View style={styles.employeeCountContainer}>
+                                <Ionicons name="people" size={14} color="#1d04d9ff" />
+                                <Text style={styles.itemEmployees}>
+                                    {item.employee_count} {item.employee_count === 1 ? 'employee' : 'employees'}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.arrowContainer}>
+                            <Text style={styles.itemArrow}>→</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                contentContainerStyle={styles.listContent}
+                refreshing={loading}
+                onRefresh={fetchDivisions}
+            />
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => {
-                    // Jika sedang melihat detail, kembali ke list, jika tidak, goBack
                     if (selectedDept) {
                         navigation.setParams({ selectedDept: undefined });
                     } else {
                         navigation.goBack();
                     }
                 }}>
-                    {/* Menggunakan nama icon yang berbeda jika sedang melihat detail */}
                     <Ionicons name={selectedDept ? "arrow-back" : "chevron-back"} size={27} color="#1d04d9ff" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>{selectedDept ? selectedDept.name : 'Divisions'}</Text>
-                <View style={{ width: 27 }} />
+                <TouchableOpacity onPress={fetchDivisions}>
+                    <Ionicons name="refresh" size={24} color="#1d04d9ff" />
+                </TouchableOpacity>
             </View>
 
-            {/* Jika selectedDept ada, tampilkan detail di dalam ScrollView agar bisa digulir */}
             {selectedDept
                 ? <View style={styles.content}>
                     <View>{renderDivisionDetail(selectedDept)}</View>
@@ -196,6 +200,17 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    loadingText: {
+        marginTop: 12,
+        fontSize: 14,
+        color: '#64748b',
+    },
     detailContainer: {
         padding: 20,
     },
@@ -210,7 +225,6 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
     },
-    // Container untuk menampung icon agar tidak dikira teks (karena icon adalah JSX)
     detailIconContainer: {
         marginBottom: 12,
     },
@@ -260,7 +274,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 4,
-        marginBottom: 16, // Tambahkan margin
+        marginBottom: 16,
     },
     viewEmployeeBtnText: {
         color: '#ffffff',
@@ -314,12 +328,20 @@ const styles = StyleSheet.create({
     itemDesc: {
         fontSize: 12,
         color: '#64748b',
-        marginBottom: 4,
+        marginBottom: 6,
+    },
+    employeeCountContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
     },
     itemEmployees: {
-        fontSize: 12,
-        color: '#94a3b8',
-        fontWeight: '500',
+        fontSize: 13,
+        color: '#1d04d9ff',
+        fontWeight: '600',
+    },
+    arrowContainer: {
+        paddingLeft: 8,
     },
     itemArrow: {
         fontSize: 20,

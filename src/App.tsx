@@ -17,8 +17,14 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type HomeStackParamList = {
     Home: undefined;
-    Division: undefined;
-    Employee: { id?: string } | undefined;
+    Division: { selectedDept?: any } | undefined;
+    Employee: {
+        divisionId: string;
+        divisionName: string;
+        divisionIcon: string;
+        divisionColor: string;
+        employeeCount: number;
+    };
 };
 
 type RootStackParamList = {
@@ -54,15 +60,28 @@ const MainTab = () => {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: "blue",
+                tabBarActiveTintColor: "#1d04d9ff",
+                tabBarInactiveTintColor: "#94a3b8",
+                tabBarStyle: {
+                    paddingBottom: 8,
+                    paddingTop: 8,
+                    height: 60,
+                    borderTopWidth: 1,
+                    borderTopColor: '#e2e8f0',
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontWeight: '600',
+                },
             }}
         >
             <Tab.Screen
                 name="Home"
                 component={HomeStack as any}
                 options={{
-                    tabBarIcon: ({ color }) => (
-                        <Ionicons name="home-outline" size={24} color={color} />
+                    tabBarLabel: 'Home',
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="home-outline" size={size} color={color} />
                     ),
                 }}
             />
@@ -70,8 +89,9 @@ const MainTab = () => {
                 name="Contact"
                 component={ContactScreen as any}
                 options={{
-                    tabBarIcon: ({ color }) => (
-                        <Ionicons name="call-outline" size={24} color={color} />
+                    tabBarLabel: 'Contact',
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="call-outline" size={size} color={color} />
                     ),
                 }}
             />
@@ -79,8 +99,9 @@ const MainTab = () => {
                 name="Profile"
                 component={ProfileScreen as any}
                 options={{
-                    tabBarIcon: ({ color }) => (
-                        <Ionicons name="people-outline" size={24} color={color} />
+                    tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="person-outline" size={size} color={color} />
                     ),
                 }}
             />
