@@ -91,7 +91,7 @@ app.get('/api/employees', (req, res) => {
   });
 });
 
-// 4. Employees: Add New (Disesuaikan dengan field contract_end_date)
+// 4. Employees: Add New
 app.post('/api/employees', (req, res) => {
   const {
     name,
@@ -134,7 +134,82 @@ app.post('/api/employees', (req, res) => {
   );
 });
 
-// 5. Employees: Update Status
+// 5. Employees: Update
+app.put('/api/employees/:id', (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    position,
+    age,
+    email,
+    phone,
+    address,
+    contract_end_date,
+    status,
+    division_id,
+  } = req.body;
+
+  const query = `
+    UPDATE employees 
+    SET name = ?, position = ?, age = ?, email = ?, phone = ?, 
+        address = ?, contract_end_date = ?, status = ?, division_id = ?
+    WHERE id = ?
+  `;
+
+  connection.query(
+    query,
+    [
+      name,
+      position,
+      age,
+      email,
+      phone,
+      address,
+      contract_end_date,
+      status,
+      division_id,
+      id,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error('❌ UPDATE EMPLOYEE ERROR:', err.message);
+        return res.status(500).json({ success: false, message: err.message });
+      }
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ success: false, message: 'Employee not found' });
+      }
+      console.log('✅ EMPLOYEE UPDATED, ID:', id);
+      res.json({ success: true, message: 'Employee updated successfully' });
+    },
+  );
+});
+
+// 6. Employees: Delete
+app.delete('/api/employees/:id', (req, res) => {
+  const { id } = req.params;
+
+  connection.query(
+    'DELETE FROM employees WHERE id = ?',
+    [id],
+    (err, result) => {
+      if (err) {
+        console.error('❌ DELETE EMPLOYEE ERROR:', err.message);
+        return res.status(500).json({ success: false, message: err.message });
+      }
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ success: false, message: 'Employee not found' });
+      }
+      console.log('✅ EMPLOYEE DELETED, ID:', id);
+      res.json({ success: true, message: 'Employee deleted successfully' });
+    },
+  );
+});
+
+// 7. Employees: Update Status
 app.put('/api/employees/:id/status', (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -152,7 +227,7 @@ app.put('/api/employees/:id/status', (req, res) => {
   );
 });
 
-// 6. Users: Update Username
+// 8. Users: Update Username
 app.put('/api/users/update-username', (req, res) => {
   const { userId, newUsername } = req.body;
   connection.query(
@@ -165,6 +240,53 @@ app.put('/api/users/update-username', (req, res) => {
       }
       console.log(`👤 USERNAME UPDATED: User ID ${userId} to ${newUsername}`);
       res.json({ success: true, message: 'Username updated' });
+    },
+  );
+});
+
+// 9. Users: Update Password
+app.put('/api/users/update-password', (req, res) => {
+  const { userId, oldPassword, newPassword } = req.body;
+
+  // Verifikasi password lama
+  connection.query(
+    'SELECT password FROM users WHERE id = ?',
+    [userId],
+    (err, results) => {
+      if (err) {
+        console.error('❌ VERIFY PASSWORD ERROR:', err);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Database error' });
+      }
+
+      if (results.length === 0) {
+        return res
+          .status(404)
+          .json({ success: false, message: 'User not found' });
+      }
+
+      if (results[0].password !== oldPassword) {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Password lama tidak sesuai' });
+      }
+
+      // Update password
+      connection.query(
+        'UPDATE users SET password = ? WHERE id = ?',
+        [newPassword, userId],
+        err => {
+          if (err) {
+            console.error('❌ UPDATE PASSWORD ERROR:', err);
+            return res
+              .status(500)
+              .json({ success: false, message: 'Failed to update password' });
+          }
+          console.log(`🔐 PASSWORD UPDATED: User ID ${userId}`);
+          res.json({ success: true, message: 'Password updated successfully' });
+        },
+      );
     },
   );
 });
@@ -183,11 +305,14 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server API berjalan di http://localhost:${PORT}`);
   console.log('='.repeat(50));
   console.log('📋 Available endpoints:');
-  console.log('   - GET  /');
-  console.log('   - POST /api/auth/login');
-  console.log('   - GET  /api/divisions');
-  console.log('   - GET  /api/employees');
-  console.log('   - GET  /api/announcements/contracts');
-  console.log('   - GET  /api/statistics/dashboard');
+  console.log('   - GET    /');
+  console.log('   - POST   /api/auth/login');
+  console.log('   - GET    /api/employees');
+  console.log('   - POST   /api/employees');
+  console.log('   - PUT    /api/employees/:id');
+  console.log('   - DELETE /api/employees/:id');
+  console.log('   - PUT    /api/employees/:id/status');
+  console.log('   - PUT    /api/users/update-username');
+  console.log('   - PUT    /api/users/update-password');
   console.log('='.repeat(50) + '\n');
 });
