@@ -9,6 +9,7 @@ const EmployeeListScreen = () => {
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [newName, setNewName] = useState("");
+    const [expandedId, setExpandedId] = useState<number | null>(null);
 
     const fetchEmployees = async () => {
         try {
@@ -42,7 +43,8 @@ const EmployeeListScreen = () => {
                 email: "-",
                 phone: "-",
                 address: "-",
-                contract_end: "2026-01-01"
+                contract_end_date: "2026-01-01", // Sudah disesuaikan dengan DB
+                division_id: 1
             });
             setNewName("");
             setModalVisible(false);
@@ -60,6 +62,10 @@ const EmployeeListScreen = () => {
         } catch (error) {
             Alert.alert("Error", "Gagal mengubah status");
         }
+    };
+
+    const toggleDetail = (id: number) => {
+        setExpandedId(expandedId === id ? null : id);
     };
 
     if (loading) {
@@ -92,9 +98,48 @@ const EmployeeListScreen = () => {
                                     >
                                         <Text style={styles.statusText}>{item.status}</Text>
                                     </TouchableOpacity>
-                                    <Ionicons name="ellipsis-vertical" size={20} color="black" />
+
+                                    {/* Tombol Titik 3 untuk Detail */}
+                                    <TouchableOpacity onPress={() => toggleDetail(item.id)}>
+                                        <Ionicons
+                                            name={expandedId === item.id ? "chevron-up" : "ellipsis-vertical"}
+                                            size={24}
+                                            color="black"
+                                        />
+                                    </TouchableOpacity>
                                 </View>
                             </View>
+
+                            {/* BAGIAN DETAIL (Accordion) */}
+                            {expandedId === item.id && (
+                                <View style={styles.detailContainer}>
+                                    <View style={styles.detailDivider} />
+                                    <Text style={styles.detailTitle}>Informasi Karyawan</Text>
+
+                                    <View style={styles.detailRow}>
+                                        <Text style={styles.detailLabel}>Jabatan:</Text>
+                                        <Text style={styles.detailValue}>{item.position}</Text>
+                                    </View>
+                                    <View style={styles.detailRow}>
+                                        <Text style={styles.detailLabel}>Email:</Text>
+                                        <Text style={styles.detailValue}>{item.email}</Text>
+                                    </View>
+                                    <View style={styles.detailRow}>
+                                        <Text style={styles.detailLabel}>Telepon:</Text>
+                                        <Text style={styles.detailValue}>{item.phone}</Text>
+                                    </View>
+                                    <View style={styles.detailRow}>
+                                        <Text style={styles.detailLabel}>Alamat:</Text>
+                                        <Text style={styles.detailValue}>{item.address}</Text>
+                                    </View>
+                                    <View style={styles.detailRow}>
+                                        <Text style={styles.detailLabel}>Kontrak Selesai:</Text>
+                                        <Text style={[styles.detailValue, { color: '#e74c3c', fontWeight: 'bold' }]}>
+                                            {item.contract_end ? new Date(item.contract_end).toLocaleDateString('id-ID') : '-'}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
                         </View>
                     ))
                 ) : (
@@ -104,6 +149,7 @@ const EmployeeListScreen = () => {
                 )}
             </ScrollView>
 
+            {/* Modal Tambah Karyawan */}
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
@@ -141,6 +187,15 @@ const styles = StyleSheet.create({
     actionContainer: { flexDirection: 'row', alignItems: 'center' },
     statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginRight: 8 },
     statusText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
+
+    // DETAIL STYLES
+    detailContainer: { marginTop: 15, padding: 10, backgroundColor: '#f9f9f9', borderRadius: 8 },
+    detailDivider: { height: 1, backgroundColor: '#eee', marginBottom: 10 },
+    detailTitle: { fontSize: 14, fontWeight: 'bold', color: '#1d04d9ff', marginBottom: 10 },
+    detailRow: { flexDirection: 'row', marginBottom: 5 },
+    detailLabel: { width: 110, color: '#666', fontSize: 13 },
+    detailValue: { flex: 1, color: '#333', fontSize: 13 },
+
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
     modalContent: { backgroundColor: 'white', borderRadius: 20, padding: 20 },
     modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
