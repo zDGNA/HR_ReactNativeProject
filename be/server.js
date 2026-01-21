@@ -32,10 +32,10 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
   if (err) {
-    console.error('❌ DATABASE CONNECTION FAILED:', err.message);
+    console.error('DATABASE CONNECTION FAILED:', err.message);
     process.exit(1);
   }
-  console.log('✅ DATABASE CONNECTED SUCCESSFULLY');
+  console.log('DATABASE CONNECTED SUCCESSFULLY');
 });
 
 // ==================== ENDPOINTS ====================
@@ -53,7 +53,7 @@ app.post('/api/auth/login', (req, res) => {
     [username, password],
     (err, results) => {
       if (err) {
-        console.error('❌ LOGIN ERROR:', err);
+        console.error('LOGIN ERROR:', err);
         return res
           .status(500)
           .json({ success: false, message: 'Database error' });
@@ -108,7 +108,7 @@ app.get('/api/employees', (req, res) => {
   `;
   connection.query(query, (err, results) => {
     if (err) {
-      console.error('❌ FETCH EMPLOYEES ERROR:', err);
+      console.error('FETCH EMPLOYEES ERROR:', err);
       return res
         .status(500)
         .json({ success: false, message: 'Database error' });
@@ -131,7 +131,7 @@ app.get('/api/employees/division/:divisionId', (req, res) => {
 
   connection.query(query, [divisionId], (err, results) => {
     if (err) {
-      console.error('❌ FETCH EMPLOYEES BY DIVISION ERROR:', err);
+      console.error('FETCH EMPLOYEES BY DIVISION ERROR:', err);
       return res
         .status(500)
         .json({ success: false, message: 'Database error' });
@@ -224,7 +224,7 @@ app.put('/api/employees/:id', (req, res) => {
     ],
     (err, result) => {
       if (err) {
-        console.error('❌ UPDATE EMPLOYEE ERROR:', err.message);
+        console.error('UPDATE EMPLOYEE ERROR:', err.message);
         return res.status(500).json({ success: false, message: err.message });
       }
       if (result.affectedRows === 0) {
@@ -306,7 +306,7 @@ app.put('/api/users/update-password', (req, res) => {
     [userId],
     (err, results) => {
       if (err) {
-        console.error('❌ VERIFY PASSWORD ERROR:', err);
+        console.error('VERIFY PASSWORD ERROR:', err);
         return res
           .status(500)
           .json({ success: false, message: 'Database error' });
