@@ -94,7 +94,7 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation, route }) =>
             email: employee.email,
             phone: employee.phone,
             address: employee.address,
-            contract_end_date: employee.contract_end ? new Date(employee.contract_end) : new Date(),
+            contract_end_date: employee.contract_end_date ? new Date(employee.contract_end_date) : new Date(),
             status: employee.status,
             division_id: parseInt(divisionId)
         });
@@ -302,7 +302,7 @@ const EmployeeScreen: React.FC<EmployeeScreenProps> = ({ navigation, route }) =>
                                     <View style={styles.detailRow}>
                                         <Text style={styles.detailLabel}>Kontrak Selesai:</Text>
                                         <Text style={[styles.detailValue, { color: '#e74c3c', fontWeight: 'bold' }]}>
-                                            {item.contract_end ? new Date(item.contract_end).toLocaleDateString('id-ID') : '-'}
+                                            {item.contract_end_date ? new Date(item.contract_end_date).toLocaleDateString('id-ID') : '-'}
                                         </Text>
                                     </View>
 

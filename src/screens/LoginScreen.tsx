@@ -40,18 +40,18 @@ const LoginScreen = () => {
         setIsLoading(true);
 
         try {
-            console.log('🔐 Attempting login...');
+            console.log('Attempting login...');
             console.log('Username:', username);
 
             // ===== PANGGIL API LOGIN =====
             const response = await authAPI.login(username, password);
 
-            console.log('📨 Response:', response);
+            console.log('Response:', response);
 
             // ===== CEK RESPONSE DARI SERVER =====
             if (response.success) {
                 // LOGIN BERHASIL
-                console.log('✅ Login successful!');
+                console.log('Login successful!');
 
                 // Simpan data user ke context
                 setUser(response.data);
@@ -76,12 +76,12 @@ const LoginScreen = () => {
                 );
             } else {
                 // LOGIN GAGAL - response.success = false
-                console.log('❌ Login failed:', response.message);
+                console.log('Login failed:', response.message);
                 Alert.alert('Login Gagal', response.message || 'Username atau password salah');
             }
         } catch (error: any) {
             // ===== ERROR HANDLING =====
-            console.error('❌ Login error:', error);
+            console.error('Login error:', error);
 
             let errorMessage = 'Terjadi kesalahan saat login';
 
@@ -170,7 +170,7 @@ const LoginScreen = () => {
 
                             {/* INFO AKUN TEST */}
                             <View style={styles.testInfoContainer}>
-                                <Text style={styles.testInfoTitle}>📝 Akun Test:</Text>
+                                <Text style={styles.testInfoTitle}>Akun Test:</Text>
                                 <Text style={styles.testInfoText}>Username: admin</Text>
                                 <Text style={styles.testInfoText}>Password: admin123</Text>
                                 <Text style={styles.testInfoHint}>

@@ -12,13 +12,12 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware Debugging: Menampilkan log setiap ada request masuk
 app.use((req, res, next) => {
   console.log(`\n${'='.repeat(50)}`);
-  console.log(`📨 REQUEST: [${req.method}] ${req.path}`);
-  console.log(`⏰ TIME   : ${new Date().toLocaleString()}`);
-  if (Object.keys(req.params).length > 0)
-    console.log(`🔍 PARAMS :`, req.params);
-  if (Object.keys(req.query).length > 0) console.log(`❓ QUERY  :`, req.query);
+  console.log(`REQUEST: [${req.method}] ${req.path}`);
+  console.log(`TIME   : ${new Date().toLocaleString()}`);
+  if (Object.keys(req.params).length > 0) console.log(`PARAMS :`, req.params);
+  if (Object.keys(req.query).length > 0) console.log(`QUERY  :`, req.query);
   if (req.method !== 'GET')
-    console.log(`📦 BODY   :`, JSON.stringify(req.body, null, 2));
+    console.log(`BODY   :`, JSON.stringify(req.body, null, 2));
   console.log(`${'='.repeat(50)}`);
   next();
 });
@@ -60,12 +59,12 @@ app.post('/api/auth/login', (req, res) => {
           .json({ success: false, message: 'Database error' });
       }
       if (results.length === 0) {
-        console.log('⚠️  LOGIN FAILED: Invalid credentials for', username);
+        console.log('LOGIN FAILED: Invalid credentials for', username);
         return res
           .status(401)
           .json({ success: false, message: 'Username atau password salah' });
       }
-      console.log('✅ LOGIN SUCCESS:', username);
+      console.log('LOGIN SUCCESS:', username);
       res.json({ success: true, data: results[0] });
     },
   );
@@ -94,7 +93,7 @@ app.get('/api/divisions', (req, res) => {
         .status(500)
         .json({ success: false, message: 'Database error' });
     }
-    console.log(`📊 FETCHED ${results.length} divisions with employee counts`);
+    console.log(`FETCHED ${results.length} divisions with employee counts`);
     res.json({ success: true, data: results || [] });
   });
 });
@@ -114,7 +113,7 @@ app.get('/api/employees', (req, res) => {
         .status(500)
         .json({ success: false, message: 'Database error' });
     }
-    console.log(`📊 FETCHED ${results.length} employees`);
+    console.log(`FETCHED ${results.length} employees`);
     res.json({ success: true, data: results || [] });
   });
 });
@@ -138,7 +137,7 @@ app.get('/api/employees/division/:divisionId', (req, res) => {
         .json({ success: false, message: 'Database error' });
     }
     console.log(
-      `📊 FETCHED ${results.length} employees for division ID ${divisionId}`,
+      `FETCHED ${results.length} employees for division ID ${divisionId}`,
     );
     res.json({ success: true, data: results || [] });
   });
@@ -181,7 +180,7 @@ app.post('/api/employees', (req, res) => {
         console.error('❌ ADD EMPLOYEE ERROR:', err.message);
         return res.status(500).json({ success: false, message: err.message });
       }
-      console.log('✅ EMPLOYEE ADDED, ID:', result.insertId);
+      console.log('EMPLOYEE ADDED, ID:', result.insertId);
       res.json({ success: true, id: result.insertId });
     },
   );
@@ -233,7 +232,7 @@ app.put('/api/employees/:id', (req, res) => {
           .status(404)
           .json({ success: false, message: 'Employee not found' });
       }
-      console.log('✅ EMPLOYEE UPDATED, ID:', id);
+      console.log('EMPLOYEE UPDATED, ID:', id);
       res.json({ success: true, message: 'Employee updated successfully' });
     },
   );
@@ -248,7 +247,7 @@ app.delete('/api/employees/:id', (req, res) => {
     [id],
     (err, result) => {
       if (err) {
-        console.error('❌ DELETE EMPLOYEE ERROR:', err.message);
+        console.error('DELETE EMPLOYEE ERROR:', err.message);
         return res.status(500).json({ success: false, message: err.message });
       }
       if (result.affectedRows === 0) {
@@ -256,7 +255,7 @@ app.delete('/api/employees/:id', (req, res) => {
           .status(404)
           .json({ success: false, message: 'Employee not found' });
       }
-      console.log('✅ EMPLOYEE DELETED, ID:', id);
+      console.log('EMPLOYEE DELETED, ID:', id);
       res.json({ success: true, message: 'Employee deleted successfully' });
     },
   );
@@ -271,10 +270,10 @@ app.put('/api/employees/:id/status', (req, res) => {
     [status, id],
     err => {
       if (err) {
-        console.error('❌ UPDATE STATUS ERROR:', err);
+        console.error('UPDATE STATUS ERROR:', err);
         return res.status(500).json({ success: false });
       }
-      console.log(`🔄 STATUS UPDATED: ID ${id} to ${status}`);
+      console.log(`STATUS UPDATED: ID ${id} to ${status}`);
       res.json({ success: true });
     },
   );
@@ -288,10 +287,10 @@ app.put('/api/users/update-username', (req, res) => {
     [newUsername, userId],
     err => {
       if (err) {
-        console.error('❌ UPDATE USERNAME ERROR:', err);
+        console.error('UPDATE USERNAME ERROR:', err);
         return res.status(500).json({ success: false });
       }
-      console.log(`👤 USERNAME UPDATED: User ID ${userId} to ${newUsername}`);
+      console.log(`USERNAME UPDATED: User ID ${userId} to ${newUsername}`);
       res.json({ success: true, message: 'Username updated' });
     },
   );
@@ -331,12 +330,12 @@ app.put('/api/users/update-password', (req, res) => {
         [newPassword, userId],
         err => {
           if (err) {
-            console.error('❌ UPDATE PASSWORD ERROR:', err);
+            console.error('UPDATE PASSWORD ERROR:', err);
             return res
               .status(500)
               .json({ success: false, message: 'Failed to update password' });
           }
-          console.log(`🔐 PASSWORD UPDATED: User ID ${userId}`);
+          console.log(`PASSWORD UPDATED: User ID ${userId}`);
           res.json({ success: true, message: 'Password updated successfully' });
         },
       );
@@ -346,7 +345,7 @@ app.put('/api/users/update-password', (req, res) => {
 
 // ==================== ERROR HANDLING 404 ====================
 app.use((req, res) => {
-  console.log(`🚫 404 NOT FOUND: ${req.path}`);
+  console.log(`404 NOT FOUND: ${req.path}`);
   res.status(404).json({ success: false, message: 'Endpoint not found' });
 });
 
@@ -355,9 +354,9 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('\n' + '='.repeat(50));
-  console.log(`🚀 Server API berjalan di http://localhost:${PORT}`);
+  console.log(`Server API berjalan di http://localhost:${PORT}`);
   console.log('='.repeat(50));
-  console.log('📋 Available endpoints:');
+  console.log('Available endpoints:');
   console.log('   - GET    /');
   console.log('   - POST   /api/auth/login');
   console.log('   - GET    /api/divisions');

@@ -31,6 +31,8 @@ export interface Employee {
   phone: string;
   address: string;
   contract_end: string;
+  contract_end_date: Date;
+
 }
 
 export type RootStackNavigationProp = NativeStackNavigationProp<RootStackParamList>;

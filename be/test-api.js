@@ -18,7 +18,7 @@ function testLogin() {
     },
   };
 
-  console.log('🧪 Testing login endpoint...');
+  console.log('Testing login endpoint...');
   console.log('Request data:', postData);
 
   const req = http.request(options, res => {
@@ -32,7 +32,7 @@ function testLogin() {
     });
 
     res.on('end', () => {
-      console.log('\n✅ Response:');
+      console.log('\nResponse:');
       try {
         const jsonData = JSON.parse(data);
         console.log(JSON.stringify(jsonData, null, 2));
@@ -43,7 +43,7 @@ function testLogin() {
   });
 
   req.on('error', error => {
-    console.error('❌ Error:', error.message);
+    console.error('Error:', error.message);
   });
 
   req.write(postData);
@@ -59,7 +59,7 @@ function testGetDivisions() {
     method: 'GET',
   };
 
-  console.log('\n🧪 Testing GET divisions endpoint...');
+  console.log('\nTesting GET divisions endpoint...');
 
   const req = http.request(options, res => {
     let data = '';
@@ -71,7 +71,7 @@ function testGetDivisions() {
     });
 
     res.on('end', () => {
-      console.log('\n✅ Response:');
+      console.log('\nResponse:');
       try {
         const jsonData = JSON.parse(data);
         console.log(`Found ${jsonData.data?.length || 0} divisions`);
@@ -82,7 +82,7 @@ function testGetDivisions() {
   });
 
   req.on('error', error => {
-    console.error('❌ Error:', error.message);
+    console.error('Error:', error.message);
   });
 
   req.end();
@@ -90,7 +90,7 @@ function testGetDivisions() {
 
 // Run tests
 console.log('='.repeat(50));
-console.log('🚀 Starting API Tests');
+console.log('Starting API Tests');
 console.log('='.repeat(50));
 
 testLogin();

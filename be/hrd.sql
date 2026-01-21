@@ -129,8 +129,8 @@ LEFT JOIN employees e ON d.id = e.division_id
 GROUP BY d.id, d.name, d.description, d.color, d.icon;
 
 -- ==================== SUCCESS MESSAGE ====================
-SELECT '✅ Database HRD berhasil dibuat!' as message;
+SELECT 'Database HRD berhasil dibuat!' as message;
 SELECT 'Total Users:' as info, COUNT(*) as count FROM users;
 SELECT 'Total Divisions:' as info, COUNT(*) as count FROM divisions;
 SELECT 'Total Employees:' as info, COUNT(*) as count FROM employees;
-SELECT '📊 Database siap digunakan!' as status;
+SELECT 'Database siap digunakan!' as status;
